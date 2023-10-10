@@ -16,6 +16,8 @@ class ArtificialNeuralNetwork(Model):
         dropout=None,
         input_dropout=None,
         batch_norm=None,
+        softmax=None,
+        sigmoid=None,
         **kwargs,
     ):
         super(ArtificialNeuralNetwork, self).__init__(**kwargs)
@@ -28,6 +30,8 @@ class ArtificialNeuralNetwork(Model):
         self.dropout = dropout
         self.input_dropout = dropout
         self.batch_norm = batch_norm
+        self.softmax = softmax
+        self.sigmoid = sigmoid
 
         # Dropout layer
         self.dropout_layer = Dropout(rate=self.dropout, name="dropout")
@@ -52,7 +56,15 @@ class ArtificialNeuralNetwork(Model):
             self.width, activation=self.act_fun, name="bulk2output"
         )
         # One Dense output layer with no activation
-        self.output_layer = Dense(self.num_outputs, activation=None, name="output")
+        self.output_layer = Dense(
+            self.num_outputs,
+            activation="softmax"
+            if self.softmax
+            else "sigmoid"
+            if self.sigmoid
+            else "None",
+            name="output",
+        )
 
     @tf.function
     def call(self, inputs):
@@ -105,6 +117,8 @@ class ArtificialNeuralNetwork(Model):
                 "dropout": self.dropout,
                 "input_dropout": self.input_dropout,
                 "batch_norm": self.batch_norm,
+                "softmax": self.softmax,
+                "sigmoid": self.sigmoid,
             }
         )
         return config
